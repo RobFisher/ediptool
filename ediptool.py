@@ -1,3 +1,4 @@
+# Licensed with GPL v2. See the file LICENSE.
 
 # IP fetching code from http://stackoverflow.com/questions/2311510/getting-a-machines-external-ip-address
 
