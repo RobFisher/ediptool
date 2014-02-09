@@ -82,8 +82,36 @@ if f:
 else:
     print 'Unable to find AppConfig.xml'
 
+instructions = \
+"""
+If you don't mind which port number you use, press enter
+to use port 5100. Otherwise type the port number you
+would like to use and press enter. This number must be
+between 1025 and 65535.
+"""
+
+hint = \
+"""
+Enter a number between 1025 and 65535, or press enter
+to use the default 5100, or press CTRL-C to abort.
+"""
+
 if backup_ok:
-    port = 5100
+    print instructions
+    port = 0
+    while port == 0:
+        user_input = raw_input().strip()
+        if user_input == '':
+            port = 5100
+        else:
+            try:
+                port = int(user_input)
+                if not 1024 < port < 65536:
+                    print hint
+                    port = 0
+            except ValueError:
+                print hint
+
     port_line = '   Port="' + str(port) + '"\n'
     upnp_line = '   UpnpEnabled="0"\n'
     ip_line = '    <Self name="my computer" ip="' + ip + '" port="' + str(port) + '" />\n'
