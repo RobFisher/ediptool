@@ -5,7 +5,28 @@ import os
 import urllib2
 import httplib
 
-print 'Elite Dangerous IP address tool; version 1.0'
+
+lines = []
+line_number = 0
+something_changed = False
+
+
+def update_line(current_line, required_line):
+    global lines
+    global line_number
+    global something_changed
+    print current_line
+    if current_line.strip() == required_line.strip():
+        print 'Already ok.'
+    else:
+        print 'Changing to:'
+        print required_line
+        lines[line_number] = required_line
+        something_changed = True
+
+
+print 'Elite Dangerous IP address tool; version 1.01'
+
 
 server_name = 'www.trackip.net'
 file_name = '/ip'
@@ -33,19 +54,21 @@ for drive in drives:
         print 'Looking for AppConfig.xml'
         print 'Trying ' + drive + path
         f = open(drive + path)
+        file_name = drive + path
         break
     except IOError:
         pass
 
-backup_file_name = drive + path + '.backup'
+backup_file_name = file_name + '.backup'
 backup_ok = False
 
 if f:
     lines = f.readlines()
     f.close()
-    try:
-        backup_file = open(backup_file_name)
-    except IOError:
+    if os.path.isfile(backup_file_name):
+        print 'Backup file already exists: ' + backup_file_name
+        backup_ok = True
+    else:
         try:
             print 'Making backup file ' + backup_file_name
             backup_file = open(backup_file_name, 'w')
@@ -56,62 +79,41 @@ if f:
         else:
             print 'Made backup file.'
             backup_ok = True
-    else:
-        backup_file.close()
-        print 'Backup file already exists: ' + backup_file_name
-        backup_ok = True
 else:
     print 'Unable to find AppConfig.xml'
 
 if backup_ok:
     port = 5100
-    port_line = 'Port="' + str(port) + '"'
-    ip_line = '<Self name="my computer" ip="' + ip + '" port="' + str(port) + '" />'
+    port_line = '   Port="' + str(port) + '"\n'
+    ip_line = '    <Self name="my computer" ip="' + ip + '" port="' + str(port) + '" />\n'
     found_ip_line = False
-    index = 0
-    something_changed = False
-    
+
     for line in lines:
         stripped_line = line.strip()
         if stripped_line.startswith('Port="'):
-            print stripped_line
-            if stripped_line == port_line:
-                print 'Already ok.'
-            else:
-                print 'Changing to:'
-                print port_line
-                lines[index] = '   ' + port_line + '\n'
-                something_changed = True
+            update_line(stripped_line, port_line)
         elif stripped_line.startswith('<Self name="'):
+            update_line(stripped_line, ip_line)
             found_ip_line = True
-            print stripped_line
-            if stripped_line == ip_line:
-                print 'Already ok.'
-            else:
-                print 'Changing to:'
-                print ip_line
-                lines[index] = '    ' + ip_line + '\n'
-                something_changed = True
         elif stripped_line == '</Network>' and not found_ip_line:
             print 'Adding line:'
             print ip_line
-            lines.insert(index, '    ' + ip_line + '\n')
-            index += 1
+            lines.insert(line_number, ip_line)
+            line_number += 1
             found_ip_line = True
             something_changed = True
-        index += 1
-        
+        line_number += 1
+
     if something_changed:
         try:
-            f = open(drive + path, 'w')
+            f = open(file_name, 'w')
         except IOError:
             print 'Unable to write file.'
         else:
             print 'Updating file.'
             f.writelines(lines)
             f.close()
-        
-    f.close()
 
+    f.close()
 
 raw_input("Press Enter to continue...")
