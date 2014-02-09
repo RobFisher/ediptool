@@ -85,6 +85,7 @@ else:
 if backup_ok:
     port = 5100
     port_line = '   Port="' + str(port) + '"\n'
+    upnp_line = '   UpnpEnabled="0"\n'
     ip_line = '    <Self name="my computer" ip="' + ip + '" port="' + str(port) + '" />\n'
     found_ip_line = False
 
@@ -92,6 +93,8 @@ if backup_ok:
         stripped_line = line.strip()
         if stripped_line.startswith('Port="'):
             update_line(stripped_line, port_line)
+        elif stripped_line.startswith('UpnpEnabled="'):
+            update_line(stripped_line, upnp_line)
         elif stripped_line.startswith('<Self name="'):
             update_line(stripped_line, ip_line)
             found_ip_line = True
