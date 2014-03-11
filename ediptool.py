@@ -28,7 +28,7 @@ def update_line(current_line, required_line):
         something_changed = True
 
 
-print 'Elite Dangerous IP address tool; version 1.01'
+print 'Elite Dangerous IP address tool; version 1.02'
 
 
 server_name = 'www.trackip.net'
@@ -68,27 +68,11 @@ else:
     sys.exit(0)
 conn.close()
 
-path = ':\Program Files (x86)\Frontier\EDLaunch\Products\FORC-FDEV-D-1000\AppConfig.xml'
-drives = ['C', 'D', 'E', 'F']
-f = None
-
-print \
-"""
-Now I am going to look for the Elite Dangerous configuration file
-AppConfig.xml on various drives until I find it.
-"""
-
-for drive in drives:
-    try:
-        print 'Trying ' + drive
-        f = open(drive + path)
-        file_name = drive + path
-        break
-    except IOError:
-        pass
-
+path = '\Frontier_Developments\Products\FORC-FDEV-D-1000\AppConfig.xml'
+file_name = os.getenv('LOCALAPPDATA') + path
 backup_file_name = file_name + '.backup'
 backup_ok = False
+f = open(file_name)
 
 if f:
     print 'I found the config file here:'
